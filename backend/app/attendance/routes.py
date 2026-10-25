@@ -1,8 +1,15 @@
 from fastapi import APIRouter, status
 
-from app.attendance import service
+from app.attendance import service, summary
 from app.attendance.models import AttendanceSession
-from app.attendance.schemas import RecordsUpdate, SessionCreate, SessionDetail, SessionSummary
+from app.attendance.schemas import (
+    GroupAttendanceSummary,
+    MyAttendance,
+    RecordsUpdate,
+    SessionCreate,
+    SessionDetail,
+    SessionSummary,
+)
 from app.auth.dependencies import CurrentUser
 from app.clock import Today
 from app.db import SessionDep
@@ -78,3 +85,22 @@ def reopen_session(
 def delete_session(session_id: int, user: CurrentUser, session: SessionDep, today: Today) -> None:
     att, _ = _load(session, session_id, user)
     service.delete_session(session, user, att, today)
+
+
+# --- summaries -------------------------------------------------------------------
+
+
+@router.get("/groups/{group_id}/attendance-summary")
+def group_attendance_summary(
+    group_id: int, user: CurrentUser, session: SessionDep
+) -> GroupAttendanceSummary:
+    """Every student's attendance in a group. Admins and the group's instructors."""
+    group = get_in_org_or_404(session, Group, group_id, user)
+    service.ensure_can_manage(session, user, group)
+    return summary.group_summary(session, group)
+
+
+@router.get("/me/attendance")
+def my_attendance(user: CurrentUser, session: SessionDep) -> MyAttendance:
+    """The caller's own attendance in each of their groups."""
+    return summary.my_attendance(session, user)
