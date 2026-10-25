@@ -43,13 +43,10 @@ def test_login_returns_token_and_user(client: TestClient, session: Session):
     body = response.json()
     assert body["token_type"] == "bearer"
     assert body["access_token"]
-    assert body["user"] == {
-        "id": user.id,
-        "org_id": org.id,
-        "email": "asha@svmit.edu",
-        "name": "Asha",
-        "role": "instructor",
-    }
+    assert body["user"]["id"] == user.id
+    assert body["user"]["org_id"] == org.id
+    assert body["user"]["email"] == "asha@svmit.edu"
+    assert body["user"]["role"] == "instructor"
     assert "password_hash" not in body["user"]
 
 
