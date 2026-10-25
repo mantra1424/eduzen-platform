@@ -136,3 +136,42 @@ export interface RecordIn {
   user_id: number
   status: AttendanceStatus
 }
+
+// --- attendance summaries ---
+
+export interface AttendanceStats {
+  present: number
+  late: number
+  absent: number
+  excused: number
+  /** present + late + absent: the sessions that count. */
+  counted: number
+  /** Rounded down to 1 decimal; null when nothing counts yet. */
+  percentage: number | null
+  below_threshold: boolean
+}
+
+export interface StudentAttendance extends AttendanceStats {
+  user_id: number
+  name: string
+  email: string
+  is_member: boolean
+}
+
+export interface GroupAttendanceSummary {
+  group_id: number
+  group_name: string
+  threshold: number
+  session_count: number
+  students: StudentAttendance[]
+}
+
+export interface MyGroupAttendance extends AttendanceStats {
+  group_id: number
+  group_name: string
+}
+
+export interface MyAttendance {
+  threshold: number
+  groups: MyGroupAttendance[]
+}

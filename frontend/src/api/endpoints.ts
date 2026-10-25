@@ -3,6 +3,8 @@
 import { apiFetch } from './client'
 import type {
   Group,
+  GroupAttendanceSummary,
+  MyAttendance,
   RecordIn,
   SessionCreate,
   SessionDetail,
@@ -100,4 +102,9 @@ export const api = {
     apiFetch<SessionDetail>(`/sessions/${id}/reopen`, { method: 'POST' }),
 
   deleteSession: (id: number) => apiFetch<void>(`/sessions/${id}`, { method: 'DELETE' }),
+
+  groupAttendanceSummary: (groupId: number, signal?: AbortSignal) =>
+    apiFetch<GroupAttendanceSummary>(`/groups/${groupId}/attendance-summary`, { signal }),
+
+  myAttendance: (signal?: AbortSignal) => apiFetch<MyAttendance>('/me/attendance', { signal }),
 }
