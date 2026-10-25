@@ -69,3 +69,43 @@ class RecordIn(SQLModel):
 class RecordsUpdate(SQLModel):
     # A whole class in one request. 1000 is far above any real class size.
     records: list[RecordIn] = Field(min_length=1, max_length=1000)
+
+
+class AttendanceStats(SQLModel):
+    """Counts and percentage for one person in one group."""
+
+    present: int
+    late: int
+    absent: int
+    excused: int
+    # Sessions that count towards the percentage: present + late + absent.
+    counted: int
+    # (present + late) / counted * 100, rounded down to 1 decimal; None when nothing counts yet.
+    percentage: float | None
+    # Compared exactly (not using the rounded percentage).
+    below_threshold: bool
+
+
+class StudentAttendance(AttendanceStats):
+    user_id: int
+    name: str
+    email: str
+    is_member: bool  # False if they've left the group (their marks still count)
+
+
+class GroupAttendanceSummary(SQLModel):
+    group_id: int
+    group_name: str
+    threshold: int
+    session_count: int
+    students: list[StudentAttendance]
+
+
+class MyGroupAttendance(AttendanceStats):
+    group_id: int
+    group_name: str
+
+
+class MyAttendance(SQLModel):
+    threshold: int
+    groups: list[MyGroupAttendance]
