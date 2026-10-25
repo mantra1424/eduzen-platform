@@ -131,6 +131,27 @@ describe('logging out', () => {
     // A deliberate logout is not an "expired session".
     expect(screen.queryByText(/session has expired/)).not.toBeInTheDocument()
   })
+
+  it('the next person to log in starts at the dashboard, not the previous page', async () => {
+    setToken('valid.token')
+    mockApi({
+      ...loggedInApi,
+      'GET /groups/mine': [200, []],
+      'POST /auth/login': [
+        200,
+        { access_token: 'next.token', token_type: 'bearer', user: teacher },
+      ],
+    })
+    const { router } = renderAt('/groups')
+    await screen.findByRole('heading', { name: 'My classrooms' })
+
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Log out' }))
+    await screen.findByRole('heading', { name: 'Log in' })
+    await logIn()
+
+    await screen.findByRole('heading', { name: 'Welcome, Priya Shah' })
+    expect(router.state.location.pathname).toBe('/')
+  })
 })
 
 describe('unknown URLs', () => {

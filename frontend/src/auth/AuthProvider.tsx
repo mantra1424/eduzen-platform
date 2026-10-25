@@ -11,6 +11,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()
   const [hasToken, setHasToken] = useState(() => getToken() !== null)
   const [sessionExpired, setSessionExpired] = useState(false)
+  const [signedOutByUser, setSignedOutByUser] = useState(false)
 
   // Ask the server who we are, but only if there is a token to ask with.
   const me = useQuery({
@@ -20,21 +21,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     staleTime: 5 * 60_000,
   })
 
-  const signOut = useCallback(() => {
+  const endSession = useCallback(() => {
     clearToken()
     // Forget every cached response, so the next user on this browser sees none of it.
     queryClient.clear()
     setHasToken(false)
   }, [queryClient])
 
+  /** The user clicked "Log out". */
+  const signOut = useCallback(() => {
+    setSignedOutByUser(true)
+    setSessionExpired(false)
+    endSession()
+  }, [endSession])
+
   // The API client calls this when the server rejects our saved token.
   useEffect(
     () =>
       onUnauthorized(() => {
         setSessionExpired(true)
-        signOut()
+        setSignedOutByUser(false)
+        endSession()
       }),
-    [signOut],
+    [endSession],
   )
 
   const signIn = useCallback(
@@ -43,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.clear() // drop anything cached for a previous user
       queryClient.setQueryData(ME_QUERY_KEY, user) // we already know who this is
       setSessionExpired(false)
+      setSignedOutByUser(false)
       setHasToken(true)
     },
     [queryClient],
@@ -59,11 +69,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       status,
       user: status === 'authenticated' ? (me.data ?? null) : null,
       sessionExpired,
+      signedOutByUser,
       signIn,
       signOut,
       retry: () => void me.refetch(),
     }),
-    [status, me, sessionExpired, signIn, signOut],
+    [status, me, sessionExpired, signedOutByUser, signIn, signOut],
   )
 
   return <AuthContext value={value}>{children}</AuthContext>
