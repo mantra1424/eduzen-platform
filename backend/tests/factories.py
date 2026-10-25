@@ -39,3 +39,11 @@ def make_user(
     session.commit()
     session.refresh(user)
     return user
+
+
+def auth_headers(user: User) -> dict[str, str]:
+    """Headers for a request made as this user."""
+    from app.auth.security import create_access_token
+
+    token = create_access_token(user_id=user.id, org_id=user.org_id, role=user.role)
+    return {"Authorization": f"Bearer {token}"}
