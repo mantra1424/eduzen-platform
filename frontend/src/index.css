@@ -372,7 +372,9 @@ select,
   margin-bottom: 1rem;
 }
 
-.inline-row input {
+/* Only inputs placed directly in the row stretch sideways; inputs inside a
+   stacked label (like the session date) would otherwise stretch vertically. */
+.inline-row > input {
   flex: 1 1 220px;
 }
 
@@ -543,4 +545,204 @@ td .error {
 
 .search-results li:last-child {
   border-bottom: none;
+}
+
+/* --- classroom tabs ------------------------------------------------------ */
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0 0 1.25rem;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.tabs a {
+  padding: 0.55rem 0.9rem;
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+
+.tabs a.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+/* --- attendance: start form and session list ----------------------------- */
+
+.start-session {
+  align-items: flex-end;
+}
+
+.inline-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-weight: 500;
+}
+
+.inline-field.grow {
+  flex: 1 1 220px;
+}
+
+.inline-field input {
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.session-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.session-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0;
+}
+
+.session-item a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.session-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* --- marking screen ------------------------------------------------------ */
+
+.marking h2 {
+  margin: 0;
+}
+
+.marking .page-heading p {
+  margin: 0.25rem 0 0;
+}
+
+.roster {
+  list-style: none;
+  margin: 1rem 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+.roster li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.roster li:last-child {
+  border-bottom: none;
+}
+
+.roster li.changed {
+  background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.roster-name {
+  font-weight: 500;
+}
+
+/* Four radio buttons drawn as one connected row. */
+.segmented {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.segment {
+  position: relative;
+}
+
+.segment + .segment {
+  border-left: 1px solid var(--border);
+}
+
+.segment input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.segment span {
+  display: block;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.segment input:focus-visible + span {
+  outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  outline-offset: -3px;
+}
+
+.segment input:checked + span {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Fixed darker colours (not the theme's text colours, which are lightened in dark
+   mode) so white text stays readable on both themes: all at least 4.5:1 contrast. */
+.segment.present input:checked + span {
+  background: #15803d;
+}
+
+.segment.absent input:checked + span {
+  background: #b91c1c;
+}
+
+.segment.late input:checked + span {
+  background: #b45309;
+}
+
+.segment.excused input:checked + span {
+  background: #475569;
+}
+
+.segmented:disabled .segment span {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Save / close stay reachable while scrolling a long class list. */
+.action-bar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  background: var(--bg);
+  border-top: 1px solid var(--border);
 }

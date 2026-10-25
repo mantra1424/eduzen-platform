@@ -3,6 +3,10 @@
 import { apiFetch } from './client'
 import type {
   Group,
+  RecordIn,
+  SessionCreate,
+  SessionDetail,
+  SessionSummary,
   HealthResponse,
   LearnerDirectoryEntry,
   Organization,
@@ -75,4 +79,25 @@ export const api = {
 
   removeMember: (groupId: number, userId: number) =>
     apiFetch<void>(`/groups/${groupId}/members/${userId}`, { method: 'DELETE' }),
+
+  // --- attendance ---
+  listSessions: (groupId: number, signal?: AbortSignal) =>
+    apiFetch<SessionSummary[]>(`/groups/${groupId}/sessions`, { signal }),
+
+  startSession: (groupId: number, data: SessionCreate) =>
+    apiFetch<SessionDetail>(`/groups/${groupId}/sessions`, { method: 'POST', body: data }),
+
+  getSession: (id: number, signal?: AbortSignal) =>
+    apiFetch<SessionDetail>(`/sessions/${id}`, { signal }),
+
+  saveRecords: (id: number, records: RecordIn[]) =>
+    apiFetch<SessionDetail>(`/sessions/${id}/records`, { method: 'PUT', body: { records } }),
+
+  closeSession: (id: number) =>
+    apiFetch<SessionDetail>(`/sessions/${id}/close`, { method: 'POST' }),
+
+  reopenSession: (id: number) =>
+    apiFetch<SessionDetail>(`/sessions/${id}/reopen`, { method: 'POST' }),
+
+  deleteSession: (id: number) => apiFetch<void>(`/sessions/${id}`, { method: 'DELETE' }),
 }

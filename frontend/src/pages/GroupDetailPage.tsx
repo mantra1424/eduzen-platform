@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, NavLink, Outlet, useNavigate, useParams } from 'react-router'
 
 import { ApiError } from '../api/client'
 import { api } from '../api/endpoints'
@@ -10,8 +10,10 @@ import { useAuth } from '../auth/AuthContext'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { useOrganization } from '../auth/useOrganization'
 import { groupLabel, groupsLabel, roleLabel, withArticle } from '../labels'
+import { type GroupContext, useGroupContext } from './groupContext'
 
-export function GroupDetailPage() {
+/** Classroom/team page: header, tabs (Members, Attendance), and the active tab below. */
+export function GroupLayout() {
   const groupId = Number(useParams().groupId)
   const { user } = useAuth()
   const orgType = useOrganization().data?.type ?? 'college'
@@ -28,12 +30,6 @@ export function GroupDetailPage() {
       return found
     },
     enabled: Number.isInteger(groupId),
-  })
-
-  const members = useQuery({
-    queryKey: queryKeys.groupMembers(groupId),
-    queryFn: ({ signal }) => api.listMembers(groupId, signal),
-    enabled: group.isSuccess,
   })
 
   const backLink = (
@@ -62,6 +58,7 @@ export function GroupDetailPage() {
     )
   }
 
+  const context: GroupContext = { group: group.data, orgType, isAdmin }
   return (
     <section>
       {backLink}
@@ -71,7 +68,32 @@ export function GroupDetailPage() {
         <h1>{group.data.name}</h1>
       )}
 
-      <h2>Members</h2>
+      <nav className="tabs" aria-label={`${groupLabel(orgType)} sections`}>
+        {/* "end" so Members isn't also highlighted on /attendance */}
+        <NavLink to={`/groups/${groupId}`} end>
+          Members
+        </NavLink>
+        <NavLink to={`/groups/${groupId}/attendance`}>Attendance</NavLink>
+      </nav>
+
+      <Outlet context={context} />
+    </section>
+  )
+}
+
+export function GroupMembersTab() {
+  const { group, orgType, isAdmin } = useGroupContext()
+  const { user } = useAuth()
+  const groupId = group.id
+
+  const members = useQuery({
+    queryKey: queryKeys.groupMembers(groupId),
+    queryFn: ({ signal }) => api.listMembers(groupId, signal),
+  })
+
+  return (
+    <div>
+      <h2 className="visually-hidden">Members</h2>
       {members.isSuccess && isAdmin && (
         <AddMemberForm
           groupId={groupId}
@@ -122,7 +144,7 @@ export function GroupDetailPage() {
           </table>
         </div>
       )}
-    </section>
+    </div>
   )
 }
 

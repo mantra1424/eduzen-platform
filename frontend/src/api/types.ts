@@ -82,3 +82,57 @@ export interface LearnerDirectoryEntry {
   name: string
   email: string
 }
+
+// --- attendance ---
+
+export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused'
+
+export interface SessionSummary {
+  id: number
+  group_id: number
+  held_on: string // "2026-10-26" (a calendar date, no time)
+  topic: string | null
+  closed: boolean
+  present: number
+  absent: number
+  late: number
+  excused: number
+  unmarked: number
+}
+
+export interface RosterEntry {
+  user_id: number
+  name: string
+  email: string
+  /** False if they've left the group; their mark still counts. */
+  is_member: boolean
+  status: AttendanceStatus | null // null = not marked yet
+  marked_at: string | null
+}
+
+export interface SessionDetail {
+  id: number
+  group_id: number
+  group_name: string
+  held_on: string
+  topic: string | null
+  created_at: string
+  closed_at: string | null
+  // Worked out by the server with the same rules it enforces.
+  can_edit: boolean
+  can_close: boolean
+  can_reopen: boolean
+  can_delete: boolean
+  read_only_reason: string | null
+  roster: RosterEntry[]
+}
+
+export interface SessionCreate {
+  held_on?: string // omitted = the server's "today"
+  topic?: string
+}
+
+export interface RecordIn {
+  user_id: number
+  status: AttendanceStatus
+}
