@@ -1,5 +1,7 @@
 # EduZen
 
+[![CI](https://github.com/mantra1424/eduzen-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/mantra1424/eduzen-platform/actions/workflows/ci.yml)
+
 A learning platform for colleges and companies: groups (classrooms or teams), attendance,
 assessments, and an AI assistant that answers questions from uploaded documents.
 Each organisation's data is kept fully separate.
@@ -10,7 +12,7 @@ Each organisation's data is kept fully separate.
 
 - **Backend:** FastAPI, SQLModel, PostgreSQL, Alembic, pytest
 - **Frontend:** React, TypeScript, Vite *(coming soon)*
-- **Tooling:** Docker Compose, uv, Ruff, GitHub Actions *(coming soon)*
+- **Tooling:** Docker Compose, uv, Ruff, GitHub Actions
 
 ## Running locally
 
