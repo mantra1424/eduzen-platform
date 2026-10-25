@@ -1,4 +1,4 @@
-import { roleLabel } from '../labels'
+import { roleLabel, withArticle } from '../labels'
 import { safeRedirectPath } from './redirect'
 import { slugify } from './slug'
 
@@ -39,5 +39,12 @@ describe('roleLabel', () => {
     expect(roleLabel('learner', 'college')).toBe('Student')
     expect(roleLabel('learner', 'company')).toBe('Employee')
     expect(roleLabel('instructor', 'company')).toBe('Trainer')
+  })
+})
+
+describe('withArticle', () => {
+  it('uses "an" before vowel sounds', () => {
+    expect(withArticle('student')).toBe('a student')
+    expect(withArticle('employee')).toBe('an employee')
   })
 })

@@ -37,3 +37,8 @@ export function navItems(role: UserRole, orgType: OrgType): NavItem[] {
     { to: '/groups', label: `My ${groupsLabel(orgType).toLowerCase()}` },
   ]
 }
+
+/** "a student", "an employee". */
+export function withArticle(word: string): string {
+  return /^[aeiou]/i.test(word) ? `an ${word}` : `a ${word}`
+}

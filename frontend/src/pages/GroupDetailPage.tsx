@@ -7,8 +7,9 @@ import { api } from '../api/endpoints'
 import { queryKeys } from '../api/queryKeys'
 import type { Group, OrgType, User } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
+import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { useOrganization } from '../auth/useOrganization'
-import { groupLabel, groupsLabel, roleLabel } from '../labels'
+import { groupLabel, groupsLabel, roleLabel, withArticle } from '../labels'
 
 export function GroupDetailPage() {
   const groupId = Number(useParams().groupId)
@@ -71,8 +72,15 @@ export function GroupDetailPage() {
       )}
 
       <h2>Members</h2>
-      {isAdmin && members.isSuccess && (
+      {members.isSuccess && isAdmin && (
         <AddMemberForm
+          groupId={groupId}
+          memberIds={members.data.map((m) => m.id)}
+          orgType={orgType}
+        />
+      )}
+      {members.isSuccess && user?.role === 'instructor' && (
+        <AddLearnerSearch
           groupId={groupId}
           memberIds={members.data.map((m) => m.id)}
           orgType={orgType}
@@ -289,6 +297,90 @@ function AddMemberForm({
         </p>
       )}
     </form>
+  )
+}
+
+/** Instructors: search learners by name or email and add them to this group. */
+function AddLearnerSearch({
+  groupId,
+  memberIds,
+  orgType,
+}: {
+  groupId: number
+  memberIds: number[]
+  orgType: OrgType
+}) {
+  const queryClient = useQueryClient()
+  const [search, setSearch] = useState('')
+  const term = useDebouncedValue(search.trim())
+  const learnerWord = roleLabel('learner', orgType).toLowerCase()
+
+  const results = useQuery({
+    queryKey: queryKeys.learnerDirectory(term),
+    queryFn: ({ signal }) => api.learnerDirectory(term, signal),
+    enabled: term.length > 0, // nothing to look up until they type
+  })
+  const candidates = (results.data ?? []).filter((l) => !memberIds.includes(l.id))
+
+  const add = useMutation({
+    mutationFn: (userId: number) => api.addMember(groupId, userId),
+    // Refreshes the member list and counts; the result list then hides the new member.
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.groups }),
+  })
+
+  return (
+    <div className="learner-search">
+      <label htmlFor="learner-search">Add {withArticle(learnerWord)}</label>
+      <input
+        id="learner-search"
+        type="search"
+        placeholder="Search by name or email"
+        autoComplete="off"
+        maxLength={100}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      {add.isError && (
+        <p className="error" role="alert">
+          {add.error.message}
+        </p>
+      )}
+
+      {term.length > 0 && (
+        <div aria-live="polite">
+          {results.isPending && <p className="muted">Searching…</p>}
+          {results.isError && (
+            <p className="error" role="alert">
+              {results.error.message}
+            </p>
+          )}
+          {results.isSuccess && candidates.length === 0 && (
+            <p className="muted">No matching {learnerWord}s to add.</p>
+          )}
+          {candidates.length > 0 && (
+            <ul className="search-results" aria-label="Search results">
+              {candidates.map((learner) => (
+                <li key={learner.id}>
+                  <span>
+                    {learner.name} <span className="muted">{learner.email}</span>
+                  </span>
+                  <button
+                    type="button"
+                    className="secondary small"
+                    aria-label={`Add ${learner.name}`}
+                    disabled={add.isPending}
+                    onClick={() => add.mutate(learner.id)}
+                  >
+                    Add
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 
