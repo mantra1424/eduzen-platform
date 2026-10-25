@@ -1,10 +1,12 @@
 import type { RouteObject } from 'react-router'
 
+import { AttendanceTab } from './attendance/AttendanceTab'
+import { SessionPage } from './attendance/SessionPage'
 import { GuestOnly, RequireAuth, RequireRole } from './auth/guards'
 import { AppLayout } from './components/AppLayout'
 import { PublicLayout } from './components/PublicLayout'
 import { DashboardPage } from './pages/DashboardPage'
-import { GroupDetailPage } from './pages/GroupDetailPage'
+import { GroupLayout, GroupMembersTab } from './pages/GroupDetailPage'
 import { GroupsPage } from './pages/GroupsPage'
 import { LoginPage } from './pages/LoginPage'
 import { NotFoundPage } from './pages/NotFoundPage'
@@ -35,7 +37,16 @@ export const routes: RouteObject[] = [
         children: [
           { path: '/', element: <DashboardPage /> },
           { path: '/groups', element: <GroupsPage /> },
-          { path: '/groups/:groupId', element: <GroupDetailPage /> },
+          {
+            // Classroom page: shared header and tabs, with each tab as a child route.
+            path: '/groups/:groupId',
+            element: <GroupLayout />,
+            children: [
+              { index: true, element: <GroupMembersTab /> },
+              { path: 'attendance', element: <AttendanceTab /> },
+              { path: 'attendance/:sessionId', element: <SessionPage /> },
+            ],
+          },
           {
             element: <RequireRole roles={['admin']} />,
             children: [{ path: '/users', element: <UsersPage /> }],

@@ -15,4 +15,8 @@ export const queryKeys = {
   myGroups: ['groups', 'mine'] as const,
   group: (id: number) => ['groups', id] as const,
   groupMembers: (id: number) => ['groups', id, 'members'] as const,
+  // Under the group, so refreshing ['groups'] (or this group) refreshes the counts too.
+  groupSessions: (groupId: number) => ['groups', groupId, 'sessions'] as const,
+
+  session: (id: number) => ['sessions', id] as const,
 }
