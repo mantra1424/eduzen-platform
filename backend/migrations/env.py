@@ -14,10 +14,10 @@ if config.config_file_name is not None:
 
 from sqlmodel import SQLModel
 
-from app.config import settings
-
 # Import every models module so its tables are registered on SQLModel.metadata.
 # Without these imports, autogenerate thinks there are no tables.
+from app.attendance import models as _attendance  # noqa: F401
+from app.config import settings
 from app.groups import models as _groups  # noqa: F401
 from app.organizations import models as _organizations  # noqa: F401
 from app.users import models as _users  # noqa: F401

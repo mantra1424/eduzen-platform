@@ -65,3 +65,32 @@ def add_to_group(session: Session, group, *users: User) -> None:
     for user in users:
         session.add(GroupMember(group_id=group.id, user_id=user.id))
     session.commit()
+
+
+def make_attendance_session(session: Session, group, created_by: User, held_on=None, topic=None):
+    from datetime import date
+
+    from app.attendance.models import AttendanceSession
+
+    attendance_session = AttendanceSession(
+        org_id=group.org_id,
+        group_id=group.id,
+        held_on=held_on or date.today(),
+        topic=topic,
+        created_by=created_by.id,
+    )
+    session.add(attendance_session)
+    session.commit()
+    session.refresh(attendance_session)
+    return attendance_session
+
+
+def mark(session: Session, attendance_session, user: User, status, marked_by: User):
+    from app.attendance.models import AttendanceRecord
+
+    record = AttendanceRecord(
+        session_id=attendance_session.id, user_id=user.id, status=status, marked_by=marked_by.id
+    )
+    session.add(record)
+    session.commit()
+    return record

@@ -19,6 +19,8 @@ export interface Organization {
   name: string
   slug: string
   type: OrgType
+  /** Attendance below this percentage is flagged (0-100, default 75). */
+  low_attendance_threshold: number
   created_at: string
 }
 
