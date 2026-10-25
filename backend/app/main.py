@@ -3,10 +3,11 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.attendance.routes import router as attendance_router
 from app.auth.routes import router as auth_router
 from app.config import settings
 from app.db import SessionDep
-from app.errors import ConflictError, ForbiddenError, NotFoundError
+from app.errors import BadRequestError, ConflictError, ForbiddenError, NotFoundError
 from app.groups.routes import router as groups_router
 from app.organizations.routes import router as organizations_router
 from app.users.routes import router as users_router
@@ -16,11 +17,17 @@ app.include_router(auth_router)
 app.include_router(organizations_router)
 app.include_router(users_router)
 app.include_router(groups_router)
+app.include_router(attendance_router)
 
 
 # Services raise plain Python errors; these handlers turn them into HTTP responses
 # in one place, so routes don't each need their own try/except.
-_ERROR_STATUS = {ConflictError: 409, ForbiddenError: 403, NotFoundError: 404}
+_ERROR_STATUS = {
+    BadRequestError: 400,
+    ConflictError: 409,
+    ForbiddenError: 403,
+    NotFoundError: 404,
+}
 
 
 def _service_error_handler(request: Request, exc: Exception) -> JSONResponse:

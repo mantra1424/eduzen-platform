@@ -11,3 +11,7 @@ class ForbiddenError(Exception):
 
 class NotFoundError(Exception):
     """The thing doesn't exist, or isn't visible to the caller (HTTP 404)."""
+
+
+class BadRequestError(Exception):
+    """The request is well-formed but doesn't make sense here (HTTP 400)."""
