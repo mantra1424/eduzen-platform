@@ -5,6 +5,7 @@ export const collegeOrg: Organization = {
   name: 'SVMIT',
   slug: 'svmit',
   type: 'college',
+  low_attendance_threshold: 75,
   created_at: '2026-10-25T10:00:00Z',
 }
 

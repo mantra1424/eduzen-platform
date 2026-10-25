@@ -23,6 +23,7 @@ class OrganizationPublic(SQLModel):
     name: str
     slug: str
     type: OrgType
+    low_attendance_threshold: int
     created_at: datetime
 
 

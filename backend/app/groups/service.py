@@ -4,6 +4,7 @@ from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
+from app.attendance.models import AttendanceSession
 from app.errors import ConflictError, ForbiddenError, NotFoundError
 from app.groups.models import Group, GroupMember
 from app.groups.schemas import GroupCreate, GroupPublic, GroupUpdate
@@ -96,10 +97,28 @@ def update_group(session: Session, group: Group, data: GroupUpdate) -> Group:
     return _save_group(session, group)
 
 
+GROUP_HAS_ATTENDANCE = (
+    "This group has attendance history, so it can't be deleted. "
+    "Its attendance records would be lost."
+)
+
+
 def delete_group(session: Session, group: Group) -> None:
-    # Memberships are removed by the database (ON DELETE CASCADE).
+    """Delete an empty-of-history group. Memberships go with it (ON DELETE CASCADE)."""
+    has_attendance = session.exec(
+        select(AttendanceSession.id).where(AttendanceSession.group_id == group.id).limit(1)
+    ).first()
+    if has_attendance is not None:
+        raise ConflictError(GROUP_HAS_ATTENDANCE)
+
     session.delete(group)
-    session.commit()
+    try:
+        session.commit()
+    except IntegrityError:
+        # Backstop: a session was created at the same moment. The database's
+        # ON DELETE RESTRICT refused the delete; report it the same way.
+        session.rollback()
+        raise ConflictError(GROUP_HAS_ATTENDANCE) from None
 
 
 # --- membership --------------------------------------------------------------
