@@ -11,7 +11,7 @@ Each organisation's data is kept fully separate.
 ## Tech stack
 
 - **Backend:** FastAPI, SQLModel, PostgreSQL, Alembic, pytest
-- **Frontend:** React, TypeScript, Vite *(coming soon)*
+- **Frontend:** React, TypeScript, Vite, React Router, TanStack Query, Vitest
 - **Tooling:** Docker Compose, uv, Ruff, GitHub Actions
 
 ## Running locally
@@ -29,10 +29,25 @@ uv run uvicorn app.main:app --reload
 Check it's running: <http://localhost:8000/health> should return `{"status": "ok", "database": "ok"}`.
 API docs: <http://localhost:8000/docs>.
 
+### Frontend
+
+Requirements: Node.js 24 (see `frontend/.nvmrc`). Start the backend first, then:
+
+```bash
+cd frontend
+npm install
+npm run dev                   # http://localhost:5173, forwards /api to the backend
+```
+
 ## Tests
 
 ```bash
 cd backend
 uv run pytest
 uv run ruff check . && uv run ruff format --check .
+```
+
+```bash
+cd frontend
+npm run typecheck && npm run lint && npm run format:check && npm test
 ```
