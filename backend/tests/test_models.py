@@ -3,30 +3,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, select
 
 from app.groups.models import Group, GroupMember
-from app.organizations.models import Organization, OrgType
 from app.users.models import User, UserRole
-
-
-def make_org(session: Session, slug: str = "svmit") -> Organization:
-    org = Organization(name="SVMIT", slug=slug, type=OrgType.college)
-    session.add(org)
-    session.commit()
-    session.refresh(org)
-    return org
-
-
-def make_user(session: Session, org: Organization, email: str = "a@svmit.edu") -> User:
-    user = User(
-        org_id=org.id,
-        email=email,
-        name="Asha",
-        password_hash="not-a-real-hash",
-        role=UserRole.learner,
-    )
-    session.add(user)
-    session.commit()
-    session.refresh(user)
-    return user
+from tests.factories import make_org, make_user
 
 
 def test_create_org_user_group_and_membership(session: Session):
