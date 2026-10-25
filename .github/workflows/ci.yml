@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same branch cancels the older, now-outdated run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend lint and tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+
+    # A throwaway Postgres for this run only, same version as docker-compose.yml.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: eduzen
+          POSTGRES_PASSWORD: ci-password
+          POSTGRES_DB: eduzen_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U eduzen -d eduzen_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    # CI-only values. They protect nothing real: the database is deleted after the run.
+    env:
+      DATABASE_URL: postgresql+psycopg://eduzen:ci-password@localhost:5432/eduzen_test
+      TEST_DATABASE_URL: postgresql+psycopg://eduzen:ci-password@localhost:5432/eduzen_test
+      JWT_SECRET: ci-only-secret-used-for-test-tokens-nothing-else
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+
+      - name: Install dependencies (exactly as locked)
+        run: uv sync --locked
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Check formatting
+        run: uv run ruff format --check .
+
+      - name: Run tests
+        run: uv run pytest -q
