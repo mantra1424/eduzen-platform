@@ -332,7 +332,7 @@ describe('group detail', () => {
     expect(await screen.findByRole('link', { name: 'IT Sem 3' })).toBeInTheDocument()
   })
 
-  it('instructors can remove learners only, and cannot add, rename or delete', async () => {
+  it('instructors can remove learners only, and cannot rename or delete', async () => {
     loggedInAs(teacher, {
       'GET /groups/mine': [200, [ceSem5]],
       'GET /groups/5/members': [200, members],
@@ -341,7 +341,9 @@ describe('group detail', () => {
 
     expect(await screen.findByRole('button', { name: 'Remove Ravi Patel' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Remove Priya Shah' })).not.toBeInTheDocument()
+    // Instructors get the learner search, not the admin's all-people dropdown.
     expect(screen.queryByRole('combobox', { name: 'Person to add' })).not.toBeInTheDocument()
+    expect(screen.getByRole('searchbox', { name: 'Add a student' })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Rename' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument()
   })

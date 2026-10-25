@@ -64,3 +64,5 @@ def require_roles(*roles: UserRole) -> Callable[[User], User]:
 
 
 AdminUser = Annotated[User, Depends(require_roles(UserRole.admin))]
+# Admins and instructors ("staff"): people who manage learners.
+StaffUser = Annotated[User, Depends(require_roles(UserRole.admin, UserRole.instructor))]

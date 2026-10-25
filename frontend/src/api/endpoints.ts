@@ -4,6 +4,7 @@ import { apiFetch } from './client'
 import type {
   Group,
   HealthResponse,
+  LearnerDirectoryEntry,
   Organization,
   SignupRequest,
   SignupResponse,
@@ -40,6 +41,12 @@ export const api = {
   // --- users (admin only) ---
   listUsers: (filters: UserFilters = {}, signal?: AbortSignal) =>
     apiFetch<User[]>(`/users${queryString({ ...filters })}`, { signal }),
+
+  // Admins and instructors: active learners, optionally filtered by name or email.
+  learnerDirectory: (q: string, signal?: AbortSignal) =>
+    apiFetch<LearnerDirectoryEntry[]>(`/users/directory${queryString({ q: q || undefined })}`, {
+      signal,
+    }),
 
   createUser: (data: UserCreate) => apiFetch<User>('/users', { method: 'POST', body: data }),
 

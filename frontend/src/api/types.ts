@@ -73,3 +73,10 @@ export interface UserFilters {
   role?: UserRole
   is_active?: boolean
 }
+
+/** What staff see when searching for learners to add to a group. */
+export interface LearnerDirectoryEntry {
+  id: number
+  name: string
+  email: string
+}

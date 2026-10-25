@@ -35,3 +35,14 @@ class UserUpdate(SQLModel):
     name: Name | None = None
     role: UserRole | None = None
     is_active: bool | None = None
+
+
+class LearnerDirectoryEntry(SQLModel):
+    """
+    What staff need to find a learner, and nothing more: no role, status or dates.
+    Instructors use this to add learners to their groups.
+    """
+
+    id: int
+    name: str
+    email: str

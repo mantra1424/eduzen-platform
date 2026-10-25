@@ -8,6 +8,7 @@ export const queryKeys = {
 
   users: ['users'] as const,
   userList: (filters: UserFilters) => ['users', 'list', filters] as const,
+  learnerDirectory: (q: string) => ['users', 'directory', q] as const,
 
   groups: ['groups'] as const,
   groupList: ['groups', 'list'] as const,
