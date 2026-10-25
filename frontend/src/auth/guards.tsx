@@ -2,6 +2,7 @@ import { Link, Navigate, Outlet, useLocation } from 'react-router'
 
 import type { UserRole } from '../api/types'
 
+import { useSlowNotice, WAKING_MESSAGE } from '../wake'
 import { useAuth } from './AuthContext'
 import { safeRedirectPath } from './redirect'
 
@@ -35,12 +36,18 @@ function ServerUnreachable() {
   )
 }
 
+/** "Loading…", then an explanation if it takes long (the server may be waking up). */
+function LoadingMessage() {
+  const slow = useSlowNotice(true)
+  return <FullPageMessage>{slow ? WAKING_MESSAGE : 'Loading…'}</FullPageMessage>
+}
+
 /** Pages inside this need a logged-in user; everyone else is sent to /login. */
 export function RequireAuth() {
   const { status, signedOutByUser } = useAuth()
   const location = useLocation()
 
-  if (status === 'loading') return <FullPageMessage>Loading…</FullPageMessage>
+  if (status === 'loading') return <LoadingMessage />
   if (status === 'error') return <ServerUnreachable />
   if (status === 'anonymous') {
     // Remember the page for visitors and expired sessions, so they can carry on after
@@ -62,7 +69,7 @@ export function GuestOnly() {
   const { status } = useAuth()
   const location = useLocation()
 
-  if (status === 'loading') return <FullPageMessage>Loading…</FullPageMessage>
+  if (status === 'loading') return <LoadingMessage />
   if (status === 'authenticated') {
     const from = (location.state as RedirectState | null)?.from
     return <Navigate to={safeRedirectPath(from)} replace />

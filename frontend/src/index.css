@@ -880,3 +880,27 @@ td .badge.danger {
 .warning-text {
   margin: 0.4rem 0 0;
 }
+
+/* --- demo logins --------------------------------------------------------- */
+
+.demo-box {
+  margin-top: 1.5rem;
+}
+
+.demo-box h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.05rem;
+}
+
+.demo-org {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin-top: 0.75rem;
+}
+
+.demo-org-name {
+  font-weight: 600;
+  min-width: 8.5rem;
+}

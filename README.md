@@ -46,6 +46,29 @@ npm install
 npm run dev                   # http://localhost:5173, forwards /api to the backend
 ```
 
+## Deployment
+
+Free hosting: **Vercel** (frontend), **Render** (backend, from `backend/Dockerfile`) and **Neon** (Postgres).
+The frontend forwards `/api/*` to the backend (`frontend/vercel.json`), so the browser sees one
+site and no CORS setup is needed.
+
+| Where | Setting | Value |
+|---|---|---|
+| Render | `DATABASE_URL` | Neon connection string (`postgres://…?sslmode=require` works as given) |
+| Render | `JWT_SECRET` | a new random secret: `openssl rand -hex 32` |
+| Render | `DEMO_MODE` | `true` to create the demo organisations on first start |
+| Render | Health check path | `/health` |
+| Vercel | Root directory | `frontend` |
+| Vercel | `VITE_DEMO_MODE` | `true` to show one-click demo logins |
+| GitHub Actions secret | `DEMO_DATABASE_URL` | same Neon connection string, for the nightly demo reset |
+
+On every start the container runs `alembic upgrade head`, then (with `DEMO_MODE=true`)
+`python -m app.demo ensure`, then serves on `$PORT`. The **Reset demo data** workflow recreates
+the two demo organisations nightly at 03:00 IST; it never touches other organisations.
+
+The free Render plan pauses the backend when idle. The login page starts waking it as soon as it
+opens, and the app explains the wait if it takes more than a few seconds.
+
 ## Tests
 
 ```bash

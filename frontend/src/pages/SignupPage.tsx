@@ -6,6 +6,7 @@ import { api } from '../api/endpoints'
 import type { OrgType } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { slugify } from '../auth/slug'
+import { useSlowNotice, useWakeServer, WAKING_MESSAGE } from '../wake'
 
 export function SignupPage() {
   const { signIn } = useAuth()
@@ -18,6 +19,10 @@ export function SignupPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
+  useWakeServer()
+
+  // Not retried automatically: if the first attempt went through, a retry would fail
+  // with "already taken", which would be confusing.
   const signup = useMutation({
     mutationFn: () =>
       api.signup({
@@ -31,6 +36,8 @@ export function SignupPage() {
     // GuestOnly then sends the new admin into the app.
     onSuccess: (result) => signIn(result.access_token, result.user),
   })
+
+  const slow = useSlowNotice(signup.isPending)
 
   function handleOrgNameChange(value: string) {
     setOrgName(value)
@@ -155,6 +162,11 @@ export function SignupPage() {
           </div>
         </fieldset>
 
+        {slow && (
+          <p className="notice" role="status">
+            {WAKING_MESSAGE}
+          </p>
+        )}
         {signup.isError && (
           <p className="error" role="alert">
             {signup.error.message}
