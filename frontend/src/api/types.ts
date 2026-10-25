@@ -1,0 +1,34 @@
+// Response shapes from the backend. Keep in sync with the Pydantic schemas in
+// backend/app/*/schemas.py (later these can be generated from the OpenAPI schema).
+
+export type OrgType = 'college' | 'company'
+export type UserRole = 'admin' | 'instructor' | 'learner'
+
+export interface User {
+  id: number
+  org_id: number
+  email: string
+  name: string
+  role: UserRole
+  is_active: boolean
+  created_at: string // ISO 8601 date-time
+}
+
+export interface Organization {
+  id: number
+  name: string
+  slug: string
+  type: OrgType
+  created_at: string
+}
+
+export interface TokenResponse {
+  access_token: string
+  token_type: 'bearer'
+  user: User
+}
+
+export interface HealthResponse {
+  status: 'ok'
+  database: 'ok'
+}
