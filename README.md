@@ -8,6 +8,13 @@ Each organisation's data is kept fully separate.
 
 > Work in progress. Rebuilt from a hackathon prototype.
 
+## Features so far
+
+- Organisation signup (college or company) that creates the first admin
+- Login with argon2-hashed passwords and JWT tokens; logout; expired sessions send users back to login
+- Admin user management and groups (classrooms/teams) with role-based permissions
+- Every query is limited to the caller's organisation
+
 ## Tech stack
 
 - **Backend:** FastAPI, SQLModel, PostgreSQL, Alembic, pytest
