@@ -10,6 +10,8 @@ export interface AuthContextValue {
   user: User | null
   /** True after the server rejected a saved token; the login page explains why. */
   sessionExpired: boolean
+  /** True after the user clicked "Log out", until the next login. */
+  signedOutByUser: boolean
   /** Save a token and user returned by login or signup. */
   signIn: (token: string, user: User) => void
   signOut: () => void

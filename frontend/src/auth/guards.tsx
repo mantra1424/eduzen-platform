@@ -1,4 +1,6 @@
-import { Navigate, Outlet, useLocation } from 'react-router'
+import { Link, Navigate, Outlet, useLocation } from 'react-router'
+
+import type { UserRole } from '../api/types'
 
 import { useAuth } from './AuthContext'
 import { safeRedirectPath } from './redirect'
@@ -35,13 +37,17 @@ function ServerUnreachable() {
 
 /** Pages inside this need a logged-in user; everyone else is sent to /login. */
 export function RequireAuth() {
-  const { status } = useAuth()
+  const { status, signedOutByUser } = useAuth()
   const location = useLocation()
 
   if (status === 'loading') return <FullPageMessage>Loading…</FullPageMessage>
   if (status === 'error') return <ServerUnreachable />
   if (status === 'anonymous') {
-    const state: RedirectState = { from: location.pathname + location.search }
+    // Remember the page for visitors and expired sessions, so they can carry on after
+    // logging in. Not after "Log out": the next person may not even be allowed there.
+    const state: RedirectState | undefined = signedOutByUser
+      ? undefined
+      : { from: location.pathname + location.search }
     return <Navigate to="/login" replace state={state} />
   }
   return <Outlet />
@@ -60,6 +66,21 @@ export function GuestOnly() {
   if (status === 'authenticated') {
     const from = (location.state as RedirectState | null)?.from
     return <Navigate to={safeRedirectPath(from)} replace />
+  }
+  return <Outlet />
+}
+
+/** Pages inside this are only for some roles. Use inside RequireAuth. */
+export function RequireRole({ roles }: { roles: UserRole[] }) {
+  const { user } = useAuth()
+  if (!user || !roles.includes(user.role)) {
+    return (
+      <section>
+        <h1>You don't have access to this page</h1>
+        <p className="muted">Ask your organisation's admin if you think you should.</p>
+        <Link to="/">Go to the dashboard</Link>
+      </section>
+    )
   }
   return <Outlet />
 }

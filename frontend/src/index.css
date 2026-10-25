@@ -219,3 +219,282 @@ button.small {
   margin: 4rem auto;
   text-align: center;
 }
+
+/* --- app layout: header across the top, sidebar + content below ---------- */
+
+.app-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    'header header'
+    'sidebar main';
+  min-height: 100vh;
+}
+
+.app-layout .site-header {
+  grid-area: header;
+}
+
+.sidebar {
+  grid-area: sidebar;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  padding: 1rem 0.5rem;
+}
+
+.sidebar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar a {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.sidebar a.active {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.app-main {
+  grid-area: main;
+  padding: 1.5rem;
+  min-width: 0; /* lets wide tables scroll inside instead of stretching the page */
+}
+
+/* Phones: one column, sidebar becomes a row of tabs under the header. */
+@media (max-width: 720px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr; /* header, tabs, then the page takes the rest */
+    grid-template-areas:
+      'header'
+      'sidebar'
+      'main';
+  }
+
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem;
+    overflow-x: auto;
+  }
+
+  .sidebar ul {
+    flex-direction: row;
+  }
+
+  .sidebar a {
+    white-space: nowrap;
+  }
+
+  .app-main {
+    padding: 1rem;
+  }
+
+  .header-user .muted {
+    display: none; /* keep the header to one line; the name is on the dashboard */
+  }
+}
+
+/* --- page pieces --------------------------------------------------------- */
+
+.page-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.page-heading h1 {
+  margin: 0;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  text-decoration: none;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-weight: 500;
+}
+
+select,
+.inline-row input {
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.inline-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.inline-row input {
+  flex: 1 1 220px;
+}
+
+.inline-row .error {
+  flex-basis: 100%;
+  margin: 0;
+}
+
+.inline-form {
+  max-width: 480px;
+  margin-bottom: 1rem;
+}
+
+.inline-form h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.button-row.start {
+  justify-content: flex-start;
+}
+
+button.danger {
+  background: var(--error);
+  border-color: var(--error);
+}
+
+.confirm {
+  flex-basis: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--error);
+  border-radius: 10px;
+}
+
+.confirm p {
+  margin-top: 0;
+}
+
+/* --- tables -------------------------------------------------------------- */
+
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+th {
+  font-size: 0.85rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+tr.inactive td {
+  color: var(--muted);
+}
+
+td .error {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.badge.success {
+  color: var(--success);
+  border-color: color-mix(in srgb, var(--success) 40%, transparent);
+}
+
+/* --- group list ---------------------------------------------------------- */
+
+.group-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.group-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0;
+}
+
+.group-item a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* Hidden on screen, still read by screen readers. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

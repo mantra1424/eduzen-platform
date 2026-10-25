@@ -1,16 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { api } from '../api/endpoints'
+import { queryKeys } from '../api/queryKeys'
 import { useAuth } from '../auth/AuthContext'
+import { useOrganization } from '../auth/useOrganization'
 import { roleLabel } from '../labels'
 
 export function DashboardPage() {
   const { user } = useAuth()
-  const organization = useQuery({
-    queryKey: ['organization', 'me'],
-    queryFn: ({ signal }) => api.myOrganization(signal),
+  const organization = useOrganization()
+  const health = useQuery({
+    queryKey: queryKeys.health,
+    queryFn: ({ signal }) => api.health(signal),
   })
-  const health = useQuery({ queryKey: ['health'], queryFn: ({ signal }) => api.health(signal) })
 
   if (!user) return null // RequireAuth guarantees a user; this keeps TypeScript happy
 

@@ -48,3 +48,28 @@ export interface SignupResponse {
   access_token: string
   token_type: 'bearer'
 }
+
+export interface Group {
+  id: number
+  name: string
+  created_at: string
+  member_count: number
+}
+
+export interface UserCreate {
+  email: string
+  name: string
+  password: string
+  role: UserRole
+}
+
+export interface UserUpdate {
+  name?: string
+  role?: UserRole
+  is_active?: boolean
+}
+
+export interface UserFilters {
+  role?: UserRole
+  is_active?: boolean
+}

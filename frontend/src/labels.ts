@@ -13,3 +13,27 @@ export function roleLabel(role: UserRole, orgType: OrgType): string {
 export function groupLabel(orgType: OrgType): string {
   return orgType === 'college' ? 'Classroom' : 'Team'
 }
+
+export function groupsLabel(orgType: OrgType): string {
+  return orgType === 'college' ? 'Classrooms' : 'Teams'
+}
+
+export interface NavItem {
+  to: string
+  label: string
+}
+
+/** Sidebar links for a role. The pages themselves are still protected by the backend. */
+export function navItems(role: UserRole, orgType: OrgType): NavItem[] {
+  if (role === 'admin') {
+    return [
+      { to: '/', label: 'Dashboard' },
+      { to: '/users', label: 'People' },
+      { to: '/groups', label: groupsLabel(orgType) },
+    ]
+  }
+  return [
+    { to: '/', label: 'Dashboard' },
+    { to: '/groups', label: `My ${groupsLabel(orgType).toLowerCase()}` },
+  ]
+}
