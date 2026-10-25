@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from sqlalchemy import DateTime
+from sqlalchemy import DateTime, UniqueConstraint
 from sqlmodel import Field, SQLModel
 
 
@@ -8,6 +8,8 @@ class Group(SQLModel, table=True):
     """A classroom (college) or team (company)."""
 
     __tablename__ = "groups"
+    # Names are unique per organisation: two colleges may both have "CE Sem 5".
+    __table_args__ = (UniqueConstraint("org_id", "name"),)  # named uq_groups_org_id_name
 
     id: int | None = Field(default=None, primary_key=True)
     org_id: int = Field(foreign_key="organizations.id", index=True)
@@ -23,6 +25,7 @@ class GroupMember(SQLModel, table=True):
 
     __tablename__ = "group_members"
 
-    group_id: int = Field(foreign_key="groups.id", primary_key=True)
+    # CASCADE: deleting a group deletes its membership rows too.
+    group_id: int = Field(foreign_key="groups.id", primary_key=True, ondelete="CASCADE")
     # Indexed so "which groups is this user in?" is fast too.
     user_id: int = Field(foreign_key="users.id", primary_key=True, index=True)

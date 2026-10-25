@@ -47,3 +47,21 @@ def auth_headers(user: User) -> dict[str, str]:
 
     token = create_access_token(user_id=user.id, org_id=user.org_id, role=user.role)
     return {"Authorization": f"Bearer {token}"}
+
+
+def make_group(session: Session, org: Organization, name: str = "CE Sem 5"):
+    from app.groups.models import Group
+
+    group = Group(org_id=org.id, name=name)
+    session.add(group)
+    session.commit()
+    session.refresh(group)
+    return group
+
+
+def add_to_group(session: Session, group, *users: User) -> None:
+    from app.groups.models import GroupMember
+
+    for user in users:
+        session.add(GroupMember(group_id=group.id, user_id=user.id))
+    session.commit()
