@@ -1,26 +1,59 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 
 import { api } from '../api/endpoints'
 import { queryKeys } from '../api/queryKeys'
 import { formatCalendarDate, localToday } from '../dates'
 import { useGroupContext } from '../pages/groupContext'
+import { ClassSummary } from './ClassSummary'
 import { countsText } from './labels'
 
 /** The classroom's Attendance tab: start a session, and the list of past sessions. */
 export function AttendanceTab() {
   const { group } = useGroupContext()
-
-  const sessions = useQuery({
-    queryKey: queryKeys.groupSessions(group.id),
-    queryFn: ({ signal }) => api.listSessions(group.id, signal),
-  })
+  // Kept in the URL (?view=summary) so the summary can be bookmarked.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const view = searchParams.get('view') === 'summary' ? 'summary' : 'sessions'
 
   return (
     <div>
       <h2 className="visually-hidden">Attendance</h2>
-      <StartSessionForm groupId={group.id} />
+      <div className="view-switch" role="group" aria-label="Attendance view">
+        <button
+          type="button"
+          aria-pressed={view === 'sessions'}
+          onClick={() => setSearchParams({}, { replace: true })}
+        >
+          Sessions
+        </button>
+        <button
+          type="button"
+          aria-pressed={view === 'summary'}
+          onClick={() => setSearchParams({ view: 'summary' }, { replace: true })}
+        >
+          Summary
+        </button>
+      </div>
+
+      {view === 'summary' ? (
+        <ClassSummary groupId={group.id} />
+      ) : (
+        <SessionsView groupId={group.id} />
+      )}
+    </div>
+  )
+}
+
+function SessionsView({ groupId }: { groupId: number }) {
+  const sessions = useQuery({
+    queryKey: queryKeys.groupSessions(groupId),
+    queryFn: ({ signal }) => api.listSessions(groupId, signal),
+  })
+
+  return (
+    <div>
+      <StartSessionForm groupId={groupId} />
 
       {sessions.isPending && <p>Loading sessions…</p>}
       {sessions.isError && (
@@ -36,7 +69,7 @@ export function AttendanceTab() {
           {sessions.data.map((s) => (
             <li key={s.id} className="card session-item">
               <div>
-                <Link to={`/groups/${group.id}/attendance/${s.id}`}>
+                <Link to={`/groups/${groupId}/attendance/${s.id}`}>
                   {formatCalendarDate(s.held_on)}
                 </Link>
                 {s.topic && <span className="muted"> · {s.topic}</span>}

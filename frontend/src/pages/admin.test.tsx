@@ -75,7 +75,7 @@ describe('sidebar', () => {
   })
 
   it('shows learners only their own groups, with no People link', async () => {
-    loggedInAs(student, {}, companyOrg)
+    loggedInAs(student, { 'GET /me/attendance': [200, { threshold: 75, groups: [] }] }, companyOrg)
     renderAt('/')
     await screen.findByRole('heading', { name: 'Welcome, Ravi Patel' })
 

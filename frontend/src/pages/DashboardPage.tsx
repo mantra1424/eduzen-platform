@@ -4,14 +4,18 @@ import { api } from '../api/endpoints'
 import { queryKeys } from '../api/queryKeys'
 import { useAuth } from '../auth/AuthContext'
 import { useOrganization } from '../auth/useOrganization'
+import { MyAttendanceCard } from '../attendance/MyAttendanceCard'
 import { roleLabel } from '../labels'
 
 export function DashboardPage() {
   const { user } = useAuth()
   const organization = useOrganization()
+  const isAdmin = user?.role === 'admin'
+  // Only admins need to know whether the server is healthy.
   const health = useQuery({
     queryKey: queryKeys.health,
     queryFn: ({ signal }) => api.health(signal),
+    enabled: isAdmin,
   })
 
   if (!user) return null // RequireAuth guarantees a user; this keeps TypeScript happy
@@ -27,12 +31,16 @@ export function DashboardPage() {
       )}
       {organization.isError && <p className="error">{organization.error.message}</p>}
 
-      <div className="card" role="status" aria-live="polite">
-        <h2>System status</h2>
-        {health.isPending && <p>Checking the server…</p>}
-        {health.isError && <p className="error">API unavailable: {health.error.message}</p>}
-        {health.isSuccess && <p className="success">API and database are running.</p>}
-      </div>
+      {user.role === 'learner' && org && <MyAttendanceCard orgType={org.type} />}
+
+      {isAdmin && (
+        <div className="card" role="status" aria-live="polite">
+          <h2>System status</h2>
+          {health.isPending && <p>Checking the server…</p>}
+          {health.isError && <p className="error">API unavailable: {health.error.message}</p>}
+          {health.isSuccess && <p className="success">API and database are running.</p>}
+        </div>
+      )}
     </section>
   )
 }

@@ -96,7 +96,13 @@ function MarkingSheet({
   /** Server sent a new version of the session: show it and refresh the lists. */
   function applyServerUpdate(updated: SessionDetail) {
     queryClient.setQueryData(queryKeys.session(updated.id), updated)
-    void queryClient.invalidateQueries({ queryKey: queryKeys.groupSessions(updated.group_id) })
+    refreshGroupAttendance(updated.group_id)
+  }
+
+  /** The session list counts and the class summary both depend on these marks. */
+  function refreshGroupAttendance(groupId: number) {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.groupSessions(groupId) })
+    void queryClient.invalidateQueries({ queryKey: queryKeys.groupAttendanceSummary(groupId) })
   }
 
   const save = useMutation({
@@ -122,7 +128,7 @@ function MarkingSheet({
     mutationFn: () => api.deleteSession(session.id),
     onSuccess: () => {
       queryClient.removeQueries({ queryKey: queryKeys.session(session.id) })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.groupSessions(session.group_id) })
+      refreshGroupAttendance(session.group_id)
       navigate(`/groups/${session.group_id}/attendance`, { replace: true })
     },
   })

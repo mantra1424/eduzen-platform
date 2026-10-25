@@ -30,16 +30,23 @@ export function mockFetch(status: number, body?: unknown) {
 
 type Reply = readonly [status: number, body?: unknown]
 
+/** Requests a test made that its mockApi didn't list. Checked after every test (setup.ts). */
+export const unexpectedRequests: string[] = []
+
 /**
  * A fake backend: replies per "METHOD /path" (path without the /api prefix).
- * Any request not listed fails the test, so typos in URLs can't hide.
+ * Any request not listed fails the test, so typos in URLs can't hide. (Throwing
+ * here isn't enough on its own: the API client would treat it as a network error.)
  */
 export function mockApi(replies: Readonly<Record<string, Reply>>) {
   return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input, init) => {
     const url = new URL(String(input), 'http://localhost')
     const key = `${init?.method ?? 'GET'} ${url.pathname.replace(/^\/api/, '')}`
     const reply = replies[key]
-    if (!reply) throw new Error(`Unexpected request in test: ${key}`)
+    if (!reply) {
+      unexpectedRequests.push(key)
+      throw new Error(`Unexpected request in test: ${key}`)
+    }
     return jsonResponse(...reply)
   })
 }
