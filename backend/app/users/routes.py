@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, status
 
 from app.auth.dependencies import AdminUser
 from app.db import SessionDep
-from app.errors import ConflictError
 from app.tenancy import get_in_org_or_404, scoped_select
 from app.users.models import User, UserRole
 from app.users.schemas import UserCreate, UserPublic, UserUpdate
@@ -30,11 +29,7 @@ def list_users(
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 def create(data: UserCreate, admin: AdminUser, session: SessionDep) -> UserPublic:
-    try:
-        user = create_user(session, admin, data)
-    except ConflictError as exc:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from None
-    return UserPublic.model_validate(user)
+    return UserPublic.model_validate(create_user(session, admin, data))
 
 
 @router.get("/{user_id}")
