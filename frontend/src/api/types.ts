@@ -32,3 +32,19 @@ export interface HealthResponse {
   status: 'ok'
   database: 'ok'
 }
+
+export interface SignupRequest {
+  org_name: string
+  slug: string
+  type: OrgType
+  admin_name: string
+  admin_email: string
+  admin_password: string
+}
+
+export interface SignupResponse {
+  organization: Organization
+  user: User
+  access_token: string
+  token_type: 'bearer'
+}

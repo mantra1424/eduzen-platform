@@ -90,3 +90,132 @@ a {
 .error {
   color: var(--error);
 }
+
+/* --- header ------------------------------------------------------------ */
+
+.site-header {
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* --- buttons ----------------------------------------------------------- */
+
+button {
+  font: inherit;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  outline-offset: 2px;
+}
+
+button.secondary {
+  background: transparent;
+  color: var(--accent);
+}
+
+button.small {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.9rem;
+}
+
+.button-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+/* --- forms ------------------------------------------------------------- */
+
+.auth-page {
+  max-width: 420px;
+  margin: 2rem auto;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.form .field label {
+  display: block;
+}
+
+.form legend {
+  padding: 0 0.35rem;
+  font-weight: 600;
+}
+
+.form label,
+.form .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-weight: 500;
+}
+
+.form input:not([type='radio']) {
+  font: inherit;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.form small {
+  font-weight: 400;
+}
+
+.radio-row {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.form label.radio {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 400;
+}
+
+.notice {
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.full-page-message {
+  margin: 4rem auto;
+  text-align: center;
+}
