@@ -1,0 +1,18 @@
+from fastapi import FastAPI, HTTPException
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+
+from app.config import settings
+from app.db import SessionDep
+
+app = FastAPI(title=settings.app_name)
+
+
+@app.get("/health")
+def health(session: SessionDep):
+    """Reports whether the API is up and can reach the database."""
+    try:
+        session.exec(text("SELECT 1"))
+    except SQLAlchemyError:
+        raise HTTPException(status_code=503, detail="Database unavailable") from None
+    return {"status": "ok", "database": "ok"}
