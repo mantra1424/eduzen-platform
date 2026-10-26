@@ -95,3 +95,13 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  docker:
+    name: Backend Docker image builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the production image
+        run: docker build --tag eduzen-api:ci backend
