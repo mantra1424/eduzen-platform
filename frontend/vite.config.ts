@@ -9,8 +9,9 @@ export default defineConfig({
     proxy: {
       // /api/auth/login -> http://localhost:8000/auth/login
       // Same origin for the browser, so no CORS setup is needed in development.
+      // Set API_PROXY_TARGET (e.g. http://localhost:8001) if port 8000 is busy.
       '/api': {
-        target: 'http://localhost:8000',
+        target: process.env.API_PROXY_TARGET ?? 'http://localhost:8000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
