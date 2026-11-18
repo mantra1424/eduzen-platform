@@ -5,7 +5,13 @@ import { Link } from 'react-router'
 import { api } from '../api/endpoints'
 import { useAuth } from '../auth/AuthContext'
 import { DEMO_ORGS, DEMO_PASSWORD, isDemoMode } from '../demo'
-import { isServerWaking, useSlowNotice, useWakeServer, WAKING_MESSAGE } from '../wake'
+import {
+  retryWhileWaking,
+  useSlowNotice,
+  useWakeServer,
+  wakingRetryDelay,
+  WAKING_MESSAGE,
+} from '../wake'
 
 export function LoginPage() {
   const { signIn, sessionExpired } = useAuth()
@@ -18,9 +24,9 @@ export function LoginPage() {
   const login = useMutation({
     mutationFn: (credentials: { email: string; password: string }) =>
       api.login(credentials.email, credentials.password),
-    // Logging in twice is harmless, so retry while the server is still starting.
-    retry: (failureCount, error) => isServerWaking(error) && failureCount < 2,
-    retryDelay: 2000,
+    // Logging in twice is harmless, so keep retrying while the server is still starting.
+    retry: retryWhileWaking,
+    retryDelay: wakingRetryDelay,
     // GuestOnly then sends the user on to where they were going.
     onSuccess: (result) => signIn(result.access_token, result.user),
   })

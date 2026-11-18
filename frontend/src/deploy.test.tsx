@@ -7,7 +7,13 @@ import { DEMO_PASSWORD } from './demo'
 import { createQueryClient } from './queryClient'
 import { collegeOrg, healthy, teacher } from './test/fixtures'
 import { mockApi, renderAt, sentBody } from './test/utils'
-import { isServerWaking, resetWakePing, useSlowNotice } from './wake'
+import {
+  isServerWaking,
+  resetWakePing,
+  retryWhileWaking,
+  useSlowNotice,
+  wakingRetryDelay,
+} from './wake'
 
 beforeEach(() => {
   localStorage.clear()
@@ -133,14 +139,29 @@ describe('retry rules', () => {
 
   it.each([
     [0, new ApiError(504, 'Gateway timeout'), true],
-    [3, new ApiError(503, 'Unavailable'), true],
-    [4, new ApiError(502, 'Bad gateway'), false], // waking: up to 4 retries
+    [5, new ApiError(503, 'Unavailable'), true],
+    [6, new ApiError(502, 'Bad gateway'), false], // waking: up to 6 retries
     [0, new ApiError(500, 'Server error'), true],
     [2, new ApiError(500, 'Server error'), false], // other errors: 2 retries
     [0, new ApiError(404, 'Not found'), false], // "no" doesn't change
     [0, new ApiError(0, 'Offline'), true],
   ])('after %i failures, %o -> retry %s', (failures, error, expected) => {
     expect(retry(failures, error)).toBe(expected)
+  })
+
+  it('waits longer between retries while the server wakes, up to 10 seconds', () => {
+    expect([0, 1, 2, 3, 4, 5].map(wakingRetryDelay)).toEqual([
+      2000, 4000, 8000, 10_000, 10_000, 10_000,
+    ])
+    const total = [0, 1, 2, 3, 4, 5].map(wakingRetryDelay).reduce((a, b) => a + b, 0)
+    expect(total).toBeGreaterThanOrEqual(44_000) // Render took ~44s to wake
+  })
+
+  it('retries login only while the server is waking', () => {
+    expect(retryWhileWaking(0, new ApiError(502, ''))).toBe(true)
+    expect(retryWhileWaking(5, new ApiError(504, ''))).toBe(true)
+    expect(retryWhileWaking(6, new ApiError(504, ''))).toBe(false)
+    expect(retryWhileWaking(0, new ApiError(401, 'Invalid email or password'))).toBe(false)
   })
 
   it('recognises a waking server', () => {
