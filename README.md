@@ -46,6 +46,13 @@ npm install
 npm run dev                   # http://localhost:5173, forwards /api to the backend
 ```
 
+If port 8000 is already taken, run the backend on another port and tell the frontend where it is:
+
+```bash
+uv run uvicorn app.main:app --reload --port 8001                 # in backend/
+API_PROXY_TARGET=http://localhost:8001 npm run dev               # in frontend/
+```
+
 ## Deployment
 
 Free hosting: **Vercel** (frontend), **Render** (backend, from `backend/Dockerfile`) and **Neon** (Postgres).
