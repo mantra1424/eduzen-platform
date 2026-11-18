@@ -66,8 +66,10 @@ site and no CORS setup is needed.
 | Render | `DEMO_MODE` | `true` to create the demo organisations on first start |
 | Render | Health check path | `/health` |
 | Vercel | Root directory | `frontend` |
-| Vercel | `VITE_DEMO_MODE` | `true` to show one-click demo logins |
 | GitHub Actions secret | `DEMO_DATABASE_URL` | same Neon connection string, for the nightly demo reset |
+
+One-click demo logins are switched on for production builds by `frontend/.env.production`
+(`VITE_DEMO_MODE=true`), so there's no Vercel setting for them.
 
 On every start the container runs `alembic upgrade head`, then (with `DEMO_MODE=true`)
 `python -m app.demo ensure`, then serves on `$PORT`. The **Reset demo data** workflow recreates
