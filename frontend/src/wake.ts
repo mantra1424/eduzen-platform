@@ -14,6 +14,22 @@ export function isServerWaking(error: unknown): boolean {
   return error instanceof ApiError && [502, 503, 504].includes(error.status)
 }
 
+/**
+ * How long to keep retrying while the server wakes. A sleeping free server has
+ * taken ~45s to start, so: up to 6 retries, waiting 2, 4, 8, 10, 10, 10 seconds
+ * (about 45s of waiting, plus each request's own time).
+ */
+export const WAKING_RETRIES = 6
+
+export function wakingRetryDelay(attemptIndex: number): number {
+  return Math.min(2000 * 2 ** attemptIndex, 10_000)
+}
+
+/** Retry rule for requests that are safe to repeat: only while the server is waking. */
+export function retryWhileWaking(failureCount: number, error: Error): boolean {
+  return isServerWaking(error) && failureCount < WAKING_RETRIES
+}
+
 let pinged = false
 
 /**

@@ -1,7 +1,7 @@
 import { QueryClient } from '@tanstack/react-query'
 
 import { ApiError } from './api/client'
-import { isServerWaking } from './wake'
+import { isServerWaking, WAKING_RETRIES, wakingRetryDelay } from './wake'
 
 export function createQueryClient(): QueryClient {
   return new QueryClient({
@@ -11,10 +11,14 @@ export function createQueryClient(): QueryClient {
         retry: (failureCount, error) => {
           // 4xx means "no" (not found, not allowed...): asking again won't change the answer.
           if (error instanceof ApiError && error.status >= 400 && error.status < 500) return false
-          // A sleeping server can take a while to start: keep trying a little longer.
-          if (isServerWaking(error)) return failureCount < 4
+          // A sleeping server can take most of a minute to start: keep trying.
+          if (isServerWaking(error)) return failureCount < WAKING_RETRIES
           return failureCount < 2 // network blips and other 5xx: try twice more
         },
+        retryDelay: (attemptIndex, error) =>
+          isServerWaking(error)
+            ? wakingRetryDelay(attemptIndex)
+            : Math.min(1000 * 2 ** attemptIndex, 30_000),
       },
     },
   })
