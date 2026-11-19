@@ -12,6 +12,8 @@ Each organisation's data is kept fully separate.
 
 - Organisation signup (college or company) that creates the first admin
 - Login with argon2-hashed passwords and JWT tokens; logout; expired sessions send users back to login
+- Login lockout: 5 wrong passwords for an email lock it for 15 minutes (unknown emails too, so it never reveals who has an account)
+- Strict Content-Security-Policy and security headers on the website
 - Admin user management and groups (classrooms/teams) with role-based permissions
 - Every query is limited to the caller's organisation
 
