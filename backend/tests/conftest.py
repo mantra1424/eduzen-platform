@@ -24,6 +24,7 @@ from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
+from app.auth.throttle import login_throttle
 from app.db import engine, get_session
 from app.main import app
 
@@ -38,6 +39,14 @@ def migrated_database() -> None:
     config.set_main_option("sqlalchemy.url", settings.test_database_url.replace("%", "%%"))
     command.downgrade(config, "base")
     command.upgrade(config, "head")
+
+
+@pytest.fixture(autouse=True)
+def reset_login_throttle() -> Iterator[None]:
+    """Failed logins in one test mustn't lock accounts in the next."""
+    login_throttle.clear()
+    yield
+    login_throttle.clear()
 
 
 @pytest.fixture

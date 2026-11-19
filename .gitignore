@@ -5,8 +5,27 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 
-# Secrets and local settings
+# Secrets and local settings (.env.example and frontend/.env.production are
+# committed on purpose: they hold no secrets)
 .env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Database dumps, backups and uploaded files: may contain real people's data
+*.sql
+*.sql.gz
+*.dump
+*.bak
+*.zip
+# ...except the database setup scripts, which hold no data
+!docker/*.sql
+backups/
+uploads/
+
+# AI assistant settings and session data
+.claude/
 
 # Node
 node_modules/
